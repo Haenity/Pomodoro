@@ -21,15 +21,19 @@ stopAlarmBtn.className = 'btn-stop-alarm';
 stopAlarmBtn.style.display = 'none';
 document.querySelector('.controls').appendChild(stopAlarmBtn);
 
-// --- 상태 유지 로직 추가 (localStorage) ---
+// --- 상태 유지 로직 고도화 (Aggressive Persistence) ---
 function saveTimerState() {
     const state = {
         expectedEndTime,
         currentTotalTime,
         isRunning,
-        timeLeft: isRunning ? timeLeft : timeLeft // 일시정지 시점의 남은 시간 저장용
+        timeLeft: timeLeft, // 일시정지 시점의 남은 시간 저장용
+        status: statusText.textContent,
+        theme: document.body.className,
+        lastUpdated: Date.now()
     };
     localStorage.setItem('pomodoro_state', JSON.stringify(state));
+    console.log('이미지 실장: 상태 저장 완료!', state);
 }
 
 function clearTimerState() {
@@ -71,7 +75,7 @@ if ('Notification' in window) {
     Notification.requestPermission();
 }
 
-// 오디오 컨텍스트 설정
+// 오디오 컨텍스트 및 Wake Lock 설정
 let audioCtx = null;
 function initAudio() {
     if (!audioCtx) {
@@ -97,7 +101,7 @@ function releaseWakeLock() {
     }
 }
 
-// 진동 패턴 정의 (기존보다 2배 더 길고 강렬하게)
+// 진동 패턴 정의 (초강력)
 const intenseVibratePattern = [2000, 500, 2000, 500, 2000, 500, 2000];
 
 // 알람 소리 재생 로직 제거하고 진동 전용 제어로 변경
@@ -150,7 +154,6 @@ function setPreset(minutes, isBreak = false) {
     timeLeft = currentTotalTime;
     expectedEndTime = null;
     releaseWakeLock();
-    clearTimerState();
 
     statusText.textContent = isBreak ? "잠시 쉬어 가세요!" : "집중할 시간입니다!";
     startBtn.textContent = '시작하기';
@@ -158,6 +161,7 @@ function setPreset(minutes, isBreak = false) {
 
     document.body.className = `theme-${minutes}`;
     updateDisplay();
+    saveTimerState(); // 버튼 누르자마자 저장!
 }
 
 function sendNotification(message) {
@@ -207,6 +211,8 @@ function startTimer() {
                 finishTimer();
             } else {
                 updateDisplay();
+                // 5초마다 자동 백업 (지플립 전환 대비)
+                if (timeLeft % 5 === 0) saveTimerState();
             }
         }, 1000);
     }
@@ -267,6 +273,10 @@ stopAlarmBtn.addEventListener('click', () => {
     resetTimer();
 });
 
+// 화면 전환(지플립) 및 페이지 이탈 시 강제 저장
+window.addEventListener('pagehide', saveTimerState);
+window.addEventListener('beforeunload', saveTimerState);
+
 document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && isRunning && expectedEndTime) {
         timeLeft = Math.round((expectedEndTime - Date.now()) / 1000);
@@ -278,22 +288,24 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 
-// --- 초기 복구 로직 ---
+// --- 복구 로직 강화 ---
 function recoverState() {
     const saved = loadTimerState();
+    console.log('이미지 실장: 과거 기록 조회 중...', saved);
     if (!saved) return;
 
     currentTotalTime = saved.currentTotalTime || 25 * 60;
-    document.body.className = `theme-${currentTotalTime / 60}`;
+    if (saved.theme) document.body.className = saved.theme;
+    if (saved.status) statusText.textContent = saved.status;
 
     if (saved.isRunning && saved.expectedEndTime) {
         expectedEndTime = saved.expectedEndTime;
-        isRunning = true;
         timeLeft = Math.round((expectedEndTime - Date.now()) / 1000);
 
         if (timeLeft <= 0) {
             finishTimer();
         } else {
+            isRunning = true;
             startBtn.textContent = '일시 정지';
             startBtn.style.background = '#94a3b8';
             requestWakeLock();
@@ -308,6 +320,7 @@ function recoverState() {
         }
     } else {
         timeLeft = saved.timeLeft || currentTotalTime;
+        isRunning = false;
         if (timeLeft < currentTotalTime) {
             startBtn.textContent = '다시 시작';
         }
@@ -315,12 +328,6 @@ function recoverState() {
     updateDisplay();
 }
 
-// 실행
-recoverState();
-if (!isRunning) {
-    document.body.className = 'theme-25';
-    updateDisplay();
-}
-
-
-
+// 런타임 시작
+window.addEventListener('load', recoverState);
+if (document.readyState === 'complete') recoverState();
