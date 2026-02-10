@@ -44,28 +44,32 @@
         </div>
     </div>
 
-    <script src="script.js?v=9"></script>
+    <script src="script.js?v=14"></script>
     <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js')
-                .then(reg => {
-                    console.log('해니티: 서비스 워커 등록 완료!');
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js?v=14')
+                    .then(reg => {
+                        console.log('안그비 실장: v14 보안 요원 배치 완료!');
 
-                    // 새 버전 업데이트 체크 로직
-                    reg.addEventListener('updatefound', () => {
-                        const newWorker = reg.installing;
-                        newWorker.addEventListener('statechange', () => {
-                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                // 새 버전이 설치되면 사용자 승인 없이 즉시 새로고침하여 반영
-                                console.log('해니티: 새 버전 발견! 업데이트를 진행합니다.');
-                                window.location.reload();
-                            }
-                        });
-                    });
-                })
-                .catch((err) => console.log('해니티: 등록 실패ㅠㅠ', err));
+                        // 업데이트 확인 로직 강화
+                        reg.onupdatefound = () => {
+                            const installingWorker = reg.installing;
+                            installingWorker.onstatechange = () => {
+                                if (installingWorker.state === 'installed') {
+                                    if (navigator.serviceWorker.controller) {
+                                        // 새로운 버전이 감지되면 즉시 반영을 위해 강제 재로드
+                                        console.log('안그비 실장: 새 버전(v14)을 찾았습니다. 갱신합니다.');
+                                        window.location.reload();
+                                    }
+                                }
+                            };
+                        };
+                    })
+                    .catch((err) => console.log('안그비 실장: 요원 배치 실패ㅠㅠ', err));
+            });
 
-            // 서비스 워커가 제어권을 잡으면 즉시 활성화
+            // 서비스 워커가 제어권을 잡으면 즉시 화면 갱신
             let refreshing = false;
             navigator.serviceWorker.addEventListener('controllerchange', () => {
                 if (!refreshing) {

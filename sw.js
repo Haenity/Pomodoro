@@ -1,10 +1,10 @@
-const CACHE_NAME = 'pomodoro-v9'; // 버전 업
+const CACHE_NAME = 'pomodoro-v14';
 const ASSETS = [
     './',
     './index.html',
-    './style.css?v=9',
-    './script.js?v=9',
-    './manifest.json'
+    './style.css?v=14',
+    './script.js?v=14',
+    './manifest.json?v=14'
 ];
 
 // 설치 시 리소스 캐싱
@@ -21,7 +21,6 @@ self.addEventListener('activate', (event) => {
     event.waitUntil(
         Promise.all([
             clients.claim(),
-            // 이전 캐시 삭제
             caches.keys().then((cacheNames) => {
                 return Promise.all(
                     cacheNames.filter((name) => name !== CACHE_NAME)
@@ -32,12 +31,22 @@ self.addEventListener('activate', (event) => {
     );
 });
 
-// 네트워크 요청 가로채기
+// 네트워크 우선 전략 (Network-First)으로 변경: 최신 버전 반영 보장
 self.addEventListener('fetch', (event) => {
     event.respondWith(
-        caches.match(event.request).then((response) => {
-            return response || fetch(event.request);
-        })
+        fetch(event.request)
+            .then((response) => {
+                // 네트워크 성공 시 캐시 업데이트 후 반환
+                const responseClone = response.clone();
+                caches.open(CACHE_NAME).then((cache) => {
+                    cache.put(event.request, responseClone);
+                });
+                return response;
+            })
+            .catch(() => {
+                // 네트워크 실패 시에만 캐시에서 찾기
+                return caches.match(event.request);
+            })
     );
 });
 

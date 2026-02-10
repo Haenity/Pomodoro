@@ -328,6 +328,18 @@ function recoverState() {
     updateDisplay();
 }
 
-// 런타임 시작
+// 런타임 시작 및 복구 (지플립 전환 대응 강화)
 window.addEventListener('load', recoverState);
+window.addEventListener('pageshow', (event) => {
+    // bfcached 등 뒤로가기나 화면 재활성화 시에도 복구 트리거
+    console.log('이미지 실장: 페이지 쇼 발생! 복구 시도합니다.');
+    recoverState();
+});
+
 if (document.readyState === 'complete') recoverState();
+
+// 하단에 버전 정보 표시 (디버깅용)
+const versionInfo = document.createElement('div');
+versionInfo.style.cssText = 'font-size: 10px; color: rgba(0,0,0,0.2); margin-top: 20px; text-align: center;';
+versionInfo.textContent = 'v14 - 안그비 실장 보좌 중';
+document.querySelector('.container').appendChild(versionInfo);
