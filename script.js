@@ -54,13 +54,16 @@ function startTimer() {
             if (timeLeft === 0) {
                 clearInterval(timerId);
 
-                // 진동 알림 추가 (스마트폰 지원 시)
+                // 강력하고 긴 진동 패턴 (1초 진동, 0.5초 휴식 x 3회)
                 if ('vibrate' in navigator) {
-                    navigator.vibrate([200, 100, 200]); // 200ms 진동, 100ms 쉬고, 200ms 진동
+                    navigator.vibrate([1000, 500, 1000, 500, 1000]);
                 }
 
-                alert(currentTotalTime === 300 ? '휴식이 끝났습니다! 다시 시작해볼까요?' : '설정하신 시간이 지났습니다! 잠시 쉬어 가세요.');
-                resetTimer();
+                // 진동이 시작될 시간을 준 뒤 알림창 띄우기
+                setTimeout(() => {
+                    alert(currentTotalTime === 300 ? '휴식이 끝났습니다! 다시 시작해볼까요?' : '설정하신 시간이 지났습니다! 잠시 쉬어 가세요.');
+                    resetTimer();
+                }, 100);
             }
         }, 1000);
     }
