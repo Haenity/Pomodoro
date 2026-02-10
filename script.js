@@ -97,36 +97,33 @@ function releaseWakeLock() {
     }
 }
 
-// 알람 소리 재생 (반복 가능하도록 수정)
-function playAlarmSound() {
-    initAudio();
-    if (alarmInterval) return;
+// 진동 패턴 정의 (기존보다 2배 더 길고 강렬하게)
+const intenseVibratePattern = [2000, 500, 2000, 500, 2000, 500, 2000];
 
-    const playTone = () => {
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
-        gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.1);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-        oscillator.start(audioCtx.currentTime);
-        oscillator.stop(audioCtx.currentTime + 0.6);
-    };
+// 알람 소리 재생 로직 제거하고 진동 전용 제어로 변경
+let isVibrating = false;
+let vibrationInterval = null;
 
-    playTone();
-    alarmInterval = setInterval(playTone, 1000);
+function startIntenseVibration() {
+    if ('vibrate' in navigator) {
+        isVibrating = true;
+        const vibrate = () => {
+            navigator.vibrate(intenseVibratePattern);
+        };
+        vibrate();
+        // 진동 패턴이 길므로 반복 주기 설정
+        vibrationInterval = setInterval(vibrate, 8000);
+    }
 }
 
-function stopAlarmSound() {
-    if (alarmInterval) {
-        clearInterval(alarmInterval);
-        alarmInterval = null;
+function stopAlarm() {
+    isVibrating = false;
+    if (vibrationInterval) {
+        clearInterval(vibrationInterval);
+        vibrationInterval = null;
     }
     if ('vibrate' in navigator) {
-        navigator.vibrate(0); // 진동 중지
+        navigator.vibrate(0); // 진동 즉시 중지
     }
     stopAlarmBtn.style.display = 'none';
     startBtn.style.display = 'block';
@@ -147,7 +144,7 @@ function updateDisplay() {
 
 function setPreset(minutes, isBreak = false) {
     clearInterval(timerId);
-    stopAlarmSound();
+    stopAlarm();
     isRunning = false;
     currentTotalTime = minutes * 60;
     timeLeft = currentTotalTime;
@@ -168,7 +165,7 @@ function sendNotification(message) {
         const options = {
             body: message,
             icon: 'https://cdn-icons-png.flaticon.com/512/3232/3232711.png',
-            vibrate: [500, 110, 500, 110, 450, 110, 200, 110, 170, 40, 450, 110, 200, 110, 170, 40],
+            vibrate: [1000, 200, 1000, 200, 1000, 200, 1000], // 알림 진동도 강화
             tag: 'pomodoro-notification',
             requireInteraction: true
         };
@@ -184,7 +181,7 @@ function sendNotification(message) {
 }
 
 function startTimer() {
-    initAudio();
+    initAudio(); // WakeLock 등을 위해 유지
 
     if (isRunning) {
         clearInterval(timerId);
@@ -193,7 +190,7 @@ function startTimer() {
         isRunning = false;
         expectedEndTime = null;
         releaseWakeLock();
-        saveTimerState(); // 일시정지 상태 저장
+        saveTimerState();
     } else {
         isRunning = true;
         startBtn.textContent = '일시 정지';
@@ -224,10 +221,8 @@ function finishTimer() {
     releaseWakeLock();
     clearTimerState();
 
-    playAlarmSound();
-    if ('vibrate' in navigator) {
-        navigator.vibrate([1000, 500, 1000, 500, 1000]);
-    }
+    // 소리 대신 강력한 진동 시작
+    startIntenseVibration();
 
     if (currentTotalTime !== 300) {
         incrementFocusCount();
@@ -242,8 +237,8 @@ function finishTimer() {
 
     if (document.visibilityState === 'visible') {
         setTimeout(() => {
-            if (confirm(msg + '\n알람을 끄시겠습니까?')) {
-                stopAlarmSound();
+            if (confirm(msg + '\n진동을 끄시겠습니까?')) {
+                stopAlarm();
                 resetTimer();
             }
         }, 100);
@@ -252,7 +247,7 @@ function finishTimer() {
 
 function resetTimer() {
     clearInterval(timerId);
-    stopAlarmSound();
+    stopAlarm();
     timeLeft = currentTotalTime;
     isRunning = false;
     expectedEndTime = null;
@@ -268,7 +263,7 @@ function resetTimer() {
 startBtn.addEventListener('click', startTimer);
 resetBtn.addEventListener('click', resetTimer);
 stopAlarmBtn.addEventListener('click', () => {
-    stopAlarmSound();
+    stopAlarm();
     resetTimer();
 });
 
