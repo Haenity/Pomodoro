@@ -1,9 +1,9 @@
-const CACHE_NAME = 'pomodoro-v6';
+const CACHE_NAME = 'pomodoro-v8';
 const ASSETS = [
     './',
     './index.html',
-    './style.css',
-    './script.js',
+    './style.css?v=8',
+    './script.js?v=8',
     './manifest.json'
 ];
 

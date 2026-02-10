@@ -30,7 +30,8 @@ body {
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
-    padding: 2.5rem 2rem;
+    padding: 2.5rem 1.25rem;
+    /* 좌우 패딩 더 축소 */
     border-radius: 2rem;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     text-align: center;
@@ -106,25 +107,27 @@ body.theme-5 .btn-preset {
 
 .duration-presets {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.4rem;
     margin-bottom: 2rem;
     justify-content: center;
+    width: 100%;
 }
 
 .btn-preset {
-    padding: 0.6rem 0.8rem;
+    padding: 0.6rem 0.4rem;
     border-radius: 0.75rem;
     background: rgba(255, 255, 255, 0.1);
     color: var(--text-main);
     border: 1px solid var(--glass-border);
-    font-size: 0.85rem;
-    min-width: 65px;
-    /* 버튼 최소 너비 확보 */
+    font-size: 0.8rem;
+    /* 글자 크기 살짝 더 축소 */
+    min-width: 62px;
     white-space: nowrap;
-    /* 글자 줄바꿈 방지 */
     display: flex;
     align-items: center;
     justify-content: center;
+    flex: 1;
+    flex-shrink: 0;
 }
 
 .btn-preset:hover {
