@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>코다리 포모도로 - 대표님의 집중 시간을 지켜드립니다</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#fb7185">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3232/3232711.png">
+</head>
+
+<body>
+    <div class="container">
+        <h1>CODARI POMODORO</h1>
+        <div id="status" class="status-badge">집중할 시간입니다!</div>
+        <div id="timer" class="timer-display">25:00</div>
+
+        <div class="controls">
+            <button id="startBtn" class="btn-start">시작하기</button>
+            <button id="resetBtn" class="btn-reset">초기화</button>
+        </div>
+
+        <div class="progress-container">
+            <div id="progress" class="progress-bar"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(() => console.log('코다리 부장: 서비스 워커 등록 완료!'))
+                .catch((err) => console.log('코다리 부장: 등록 실패ㅠㅠ', err));
+        }
+    </script>
+</body>
+
+</html>
