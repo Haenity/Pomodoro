@@ -21,6 +21,27 @@ stopAlarmBtn.className = 'btn-stop-alarm';
 stopAlarmBtn.style.display = 'none';
 document.querySelector('.controls').appendChild(stopAlarmBtn);
 
+// --- 상태 유지 로직 추가 (localStorage) ---
+function saveTimerState() {
+    const state = {
+        expectedEndTime,
+        currentTotalTime,
+        isRunning,
+        timeLeft: isRunning ? timeLeft : timeLeft // 일시정지 시점의 남은 시간 저장용
+    };
+    localStorage.setItem('pomodoro_state', JSON.stringify(state));
+}
+
+function clearTimerState() {
+    localStorage.removeItem('pomodoro_state');
+}
+
+function loadTimerState() {
+    const saved = localStorage.getItem('pomodoro_state');
+    if (!saved) return null;
+    return JSON.parse(saved);
+}
+
 // 일일 집중 횟수 관리
 function getTodayDateString() {
     const now = new Date();
@@ -132,6 +153,7 @@ function setPreset(minutes, isBreak = false) {
     timeLeft = currentTotalTime;
     expectedEndTime = null;
     releaseWakeLock();
+    clearTimerState();
 
     statusText.textContent = isBreak ? "잠시 쉬어 가세요!" : "집중할 시간입니다!";
     startBtn.textContent = '시작하기';
@@ -148,10 +170,9 @@ function sendNotification(message) {
             icon: 'https://cdn-icons-png.flaticon.com/512/3232/3232711.png',
             vibrate: [500, 110, 500, 110, 450, 110, 200, 110, 170, 40, 450, 110, 200, 110, 170, 40],
             tag: 'pomodoro-notification',
-            requireInteraction: true // 사용자가 닫을 때까지 유지
+            requireInteraction: true
         };
 
-        // 서비스 워커를 통한 알림 (더 강력함)
         if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
             navigator.serviceWorker.ready.then(registration => {
                 registration.showNotification('집중의시간', options);
@@ -172,6 +193,7 @@ function startTimer() {
         isRunning = false;
         expectedEndTime = null;
         releaseWakeLock();
+        saveTimerState(); // 일시정지 상태 저장
     } else {
         isRunning = true;
         startBtn.textContent = '일시 정지';
@@ -179,6 +201,7 @@ function startTimer() {
         requestWakeLock();
 
         expectedEndTime = Date.now() + (timeLeft * 1000);
+        saveTimerState();
 
         timerId = setInterval(() => {
             timeLeft = Math.round((expectedEndTime - Date.now()) / 1000);
@@ -197,7 +220,9 @@ function finishTimer() {
     updateDisplay();
     clearInterval(timerId);
     expectedEndTime = null;
+    isRunning = false;
     releaseWakeLock();
+    clearTimerState();
 
     playAlarmSound();
     if ('vibrate' in navigator) {
@@ -211,12 +236,10 @@ function finishTimer() {
     const msg = currentTotalTime === 300 ? '휴식이 끝났습니다! 다시 시작해볼까요?' : '설정하신 시간이 지났습니다! 잠시 쉬어 가세요.';
     sendNotification(msg);
 
-    // 알람 끄기 버튼 표시
     startBtn.style.display = 'none';
     resetBtn.style.display = 'none';
     stopAlarmBtn.style.display = 'block';
 
-    // 포그라운드에 있을 경우만 alert (백그라운드에서는 notification이 담당)
     if (document.visibilityState === 'visible') {
         setTimeout(() => {
             if (confirm(msg + '\n알람을 끄시겠습니까?')) {
@@ -238,6 +261,7 @@ function resetTimer() {
     startBtn.style.display = 'block';
     resetBtn.style.display = 'block';
     releaseWakeLock();
+    clearTimerState();
     updateDisplay();
 }
 
@@ -259,8 +283,49 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 
-// 초기 테마 설정
-document.body.className = 'theme-25';
-updateDisplay();
+// --- 초기 복구 로직 ---
+function recoverState() {
+    const saved = loadTimerState();
+    if (!saved) return;
+
+    currentTotalTime = saved.currentTotalTime || 25 * 60;
+    document.body.className = `theme-${currentTotalTime / 60}`;
+
+    if (saved.isRunning && saved.expectedEndTime) {
+        expectedEndTime = saved.expectedEndTime;
+        isRunning = true;
+        timeLeft = Math.round((expectedEndTime - Date.now()) / 1000);
+
+        if (timeLeft <= 0) {
+            finishTimer();
+        } else {
+            startBtn.textContent = '일시 정지';
+            startBtn.style.background = '#94a3b8';
+            requestWakeLock();
+            timerId = setInterval(() => {
+                timeLeft = Math.round((expectedEndTime - Date.now()) / 1000);
+                if (timeLeft <= 0) {
+                    finishTimer();
+                } else {
+                    updateDisplay();
+                }
+            }, 1000);
+        }
+    } else {
+        timeLeft = saved.timeLeft || currentTotalTime;
+        if (timeLeft < currentTotalTime) {
+            startBtn.textContent = '다시 시작';
+        }
+    }
+    updateDisplay();
+}
+
+// 실행
+recoverState();
+if (!isRunning) {
+    document.body.className = 'theme-25';
+    updateDisplay();
+}
+
 
 
