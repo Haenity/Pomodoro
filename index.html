@@ -12,9 +12,17 @@
 </head>
 
 <body>
-    <div class="container">
-        <h1>CODARI POMODORO</h1>
+    <div class="container" id="appContainer">
+        <h1>HAENITY POMODORO</h1>
         <div id="status" class="status-badge">집중할 시간입니다!</div>
+
+        <div class="duration-presets">
+            <button class="btn-preset" onclick="setPreset(10)">10분</button>
+            <button class="btn-preset" onclick="setPreset(15)">15분</button>
+            <button class="btn-preset" onclick="setPreset(25)">25분</button>
+            <button class="btn-preset btn-break" onclick="setPreset(5, true)">휴식</button>
+        </div>
+
         <div id="timer" class="timer-display">25:00</div>
 
         <div class="controls">

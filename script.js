@@ -1,7 +1,7 @@
 let timeLeft = 25 * 60;
 let timerId = null;
 let isRunning = false;
-const totalTime = 25 * 60;
+let currentTotalTime = 25 * 60;
 
 const timerDisplay = document.getElementById('timer');
 const startBtn = document.getElementById('startBtn');
@@ -15,12 +15,27 @@ function updateDisplay() {
     const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     timerDisplay.textContent = timeString;
 
-    // 브라우저 탭 타이틀 업데이트
-    document.title = `${timeString} - 집중하세요!`;
+    document.title = `${timeString} - Haenity Pomodoro`;
 
-    // 프로그레스 바 업데이트
-    const progress = ((totalTime - timeLeft) / totalTime) * 100;
+    const progress = ((currentTotalTime - timeLeft) / currentTotalTime) * 100;
     progressBar.style.width = `${progress}%`;
+}
+
+function setPreset(minutes, isBreak = false) {
+    clearInterval(timerId);
+    isRunning = false;
+    currentTotalTime = minutes * 60;
+    timeLeft = currentTotalTime;
+
+    // 상태 텍스트 변경
+    statusText.textContent = isBreak ? "잠시 쉬어 가세요!" : "집중할 시간입니다!";
+    startBtn.textContent = '시작하기';
+    startBtn.style.background = '#fb7185';
+
+    // 배경 테마 변경
+    document.body.className = `theme-${minutes}`;
+
+    updateDisplay();
 }
 
 function startTimer() {
@@ -38,7 +53,7 @@ function startTimer() {
             updateDisplay();
             if (timeLeft === 0) {
                 clearInterval(timerId);
-                alert('25분이 지났습니다! 잠시 쉬어 가세요.');
+                alert(currentTotalTime === 300 ? '휴식이 끝났습니다! 다시 시작해볼까요?' : '설정하신 시간이 지났습니다! 잠시 쉬어 가세요.');
                 resetTimer();
             }
         }, 1000);
@@ -47,7 +62,7 @@ function startTimer() {
 
 function resetTimer() {
     clearInterval(timerId);
-    timeLeft = 25 * 60;
+    timeLeft = currentTotalTime;
     isRunning = false;
     startBtn.textContent = '시작하기';
     startBtn.style.background = '#fb7185';
@@ -57,5 +72,6 @@ function resetTimer() {
 startBtn.addEventListener('click', startTimer);
 resetBtn.addEventListener('click', resetTimer);
 
-// 초기화
+// 초기 테마 설정 (25분 테마)
+document.body.className = 'theme-25';
 updateDisplay();

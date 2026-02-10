@@ -34,13 +34,83 @@ body {
     border-radius: 2rem;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     text-align: center;
-    width: 380px;
+    width: 420px;
     animation: fadeIn 0.8s ease-out;
+    transition: all 0.5s ease;
+}
+
+/* 파스텔 테마 */
+body.theme-10 {
+    background: radial-gradient(circle at top right, #e0f2fe, #bae6fd);
+    color: #0369a1;
+}
+
+body.theme-15 {
+    background: radial-gradient(circle at top right, #fef3c7, #fde68a);
+    color: #b45309;
+}
+
+body.theme-25 {
+    background: radial-gradient(circle at top right, #f1f5f9, #e2e8f0);
+    color: #334155;
+}
+
+body.theme-5 {
+    background: radial-gradient(circle at top right, #f0fdf4, #dcfce7);
+    color: #15803d;
+}
+
+body.theme-10 .container,
+body.theme-15 .container,
+body.theme-25 .container,
+body.theme-5 .container {
+    background: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+body.theme-10 .timer-display,
+body.theme-15 .timer-display,
+body.theme-25 .timer-display,
+body.theme-5 .timer-display {
+    background: linear-gradient(to bottom, #1e293b, #475569);
+    -webkit-background-clip: text;
+}
+
+.duration-presets {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    justify-content: center;
+}
+
+.btn-preset {
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-main);
+    border: 1px solid var(--glass-border);
+    font-size: 0.9rem;
+}
+
+.btn-preset:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-break {
+    border-color: #10b981;
+    color: #10b981;
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 h1 {
@@ -59,7 +129,7 @@ h1 {
     background: linear-gradient(to bottom, #fff, #94a3b8);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    text-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    text-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 .status-badge {
