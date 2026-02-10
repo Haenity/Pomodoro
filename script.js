@@ -341,5 +341,5 @@ if (document.readyState === 'complete') recoverState();
 // 하단에 버전 정보 표시 (디버깅용)
 const versionInfo = document.createElement('div');
 versionInfo.style.cssText = 'font-size: 10px; color: rgba(0,0,0,0.2); margin-top: 20px; text-align: center;';
-versionInfo.textContent = 'v14 - 안그비 실장 보좌 중';
+versionInfo.textContent = 'v14';
 document.querySelector('.container').appendChild(versionInfo);
