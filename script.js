@@ -53,6 +53,12 @@ function startTimer() {
             updateDisplay();
             if (timeLeft === 0) {
                 clearInterval(timerId);
+
+                // 진동 알림 추가 (스마트폰 지원 시)
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([200, 100, 200]); // 200ms 진동, 100ms 쉬고, 200ms 진동
+                }
+
                 alert(currentTotalTime === 300 ? '휴식이 끝났습니다! 다시 시작해볼까요?' : '설정하신 시간이 지났습니다! 잠시 쉬어 가세요.');
                 resetTimer();
             }
