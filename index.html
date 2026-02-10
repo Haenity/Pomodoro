@@ -18,7 +18,7 @@
 
 <body>
     <div class="container" id="appContainer">
-        <h1>HAENITY</h1>
+        <h1>집중의시간</h1>
         <div id="status" class="status-badge">집중할 시간입니다!</div>
 
         <div class="duration-presets">
@@ -38,14 +38,18 @@
         <div class="progress-container">
             <div id="progress" class="progress-bar"></div>
         </div>
+
+        <div class="stats-container">
+            오늘의 집중 횟수: <span id="focusCount">0</span>회
+        </div>
     </div>
 
     <script src="script.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./sw.js')
-                .then(() => console.log('코다리 부장: 서비스 워커 등록 완료!'))
-                .catch((err) => console.log('코다리 부장: 등록 실패ㅠㅠ', err));
+                .then(() => console.log('해니티: 서비스 워커 등록 완료!'))
+                .catch((err) => console.log('해니티: 등록 실패ㅠㅠ', err));
         }
     </script>
 </body>

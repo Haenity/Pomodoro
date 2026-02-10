@@ -236,3 +236,24 @@ button {
     width: 0%;
     transition: width 1s linear;
 }
+
+.stats-container {
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-dim);
+}
+
+#focusCount {
+    color: #ff007f;
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin: 0 0.2rem;
+}
+
+body.theme-10 #focusCount,
+body.theme-15 #focusCount,
+body.theme-25 #focusCount,
+body.theme-5 #focusCount {
+    color: #ff007f;
+}

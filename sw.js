@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pomodoro-v3';
+const CACHE_NAME = 'pomodoro-v4';
 const ASSETS = [
     './',
     './index.html',
@@ -14,6 +14,11 @@ self.addEventListener('install', (event) => {
             return cache.addAll(ASSETS);
         })
     );
+    self.skipWaiting(); // 즉시 활성화를 위해 추가
+});
+
+self.addEventListener('activate', (event) => {
+    event.waitUntil(clients.claim()); // 즉시 제어권을 갖기 위해 추가
 });
 
 // 네트워크 요청 가로채기 (오프라인 대응)
