@@ -48,8 +48,31 @@
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./sw.js')
-                .then(() => console.log('해니티: 서비스 워커 등록 완료!'))
+                .then(reg => {
+                    console.log('해니티: 서비스 워커 등록 완료!');
+
+                    // 새 버전 업데이트 체크 로직
+                    reg.addEventListener('updatefound', () => {
+                        const newWorker = reg.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // 새 버전이 설치되면 사용자 승인 없이 즉시 새로고침하여 반영
+                                console.log('해니티: 새 버전 발견! 업데이트를 진행합니다.');
+                                window.location.reload();
+                            }
+                        });
+                    });
+                })
                 .catch((err) => console.log('해니티: 등록 실패ㅠㅠ', err));
+
+            // 서비스 워커가 제어권을 잡으면 즉시 활성화
+            let refreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (!refreshing) {
+                    window.location.reload();
+                    refreshing = true;
+                }
+            });
         }
     </script>
 </body>
