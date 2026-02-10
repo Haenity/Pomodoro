@@ -30,11 +30,12 @@ body {
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
-    padding: 3rem;
+    padding: 2.5rem 2rem;
     border-radius: 2rem;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     text-align: center;
-    width: 420px;
+    width: 90%;
+    max-width: 420px;
     animation: fadeIn 0.8s ease-out;
     transition: all 0.5s ease;
 }
@@ -111,12 +112,19 @@ body.theme-5 .btn-preset {
 }
 
 .btn-preset {
-    padding: 0.5rem 1rem;
+    padding: 0.6rem 0.8rem;
     border-radius: 0.75rem;
     background: rgba(255, 255, 255, 0.1);
     color: var(--text-main);
     border: 1px solid var(--glass-border);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    min-width: 65px;
+    /* 버튼 최소 너비 확보 */
+    white-space: nowrap;
+    /* 글자 줄바꿈 방지 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-preset:hover {
