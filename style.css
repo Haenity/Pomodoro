@@ -39,41 +39,66 @@ body {
     transition: all 0.5s ease;
 }
 
-/* 파스텔 테마 */
+/* 파스텔 테마 가독성 개선 */
 body.theme-10 {
     background: radial-gradient(circle at top right, #e0f2fe, #bae6fd);
-    color: #0369a1;
+    color: #0c4a6e;
 }
 
 body.theme-15 {
     background: radial-gradient(circle at top right, #fef3c7, #fde68a);
-    color: #b45309;
+    color: #78350f;
 }
 
 body.theme-25 {
-    background: radial-gradient(circle at top right, #f1f5f9, #e2e8f0);
-    color: #334155;
+    background: radial-gradient(circle at top right, #f1f5f9, #cbd5e1);
+    color: #1e293b;
 }
 
 body.theme-5 {
     background: radial-gradient(circle at top right, #f0fdf4, #dcfce7);
-    color: #15803d;
+    color: #064e3b;
 }
 
 body.theme-10 .container,
 body.theme-15 .container,
 body.theme-25 .container,
 body.theme-5 .container {
-    background: rgba(255, 255, 255, 0.4);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.6);
+    /* 더 선명하게 */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.8);
 }
 
 body.theme-10 .timer-display,
 body.theme-15 .timer-display,
 body.theme-25 .timer-display,
 body.theme-5 .timer-display {
-    background: linear-gradient(to bottom, #1e293b, #475569);
+    background: #0f172a;
+    /* 아주 진한 남색으로 고정 */
     -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+body.theme-10 .status-badge,
+body.theme-15 .status-badge,
+body.theme-25 .status-badge,
+body.theme-5 .status-badge {
+    background: rgba(0, 0, 0, 0.05);
+    color: inherit;
+    /* 부모 클래스의 진한 색상 유지 */
+    border-color: currentColor;
+}
+
+body.theme-10 .btn-preset,
+body.theme-15 .btn-preset,
+body.theme-25 .btn-preset,
+body.theme-5 .btn-preset {
+    color: inherit;
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(0, 0, 0, 0.1);
 }
 
 .duration-presets {
