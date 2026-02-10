@@ -1,0 +1,16 @@
+{
+  "name": "코다리 포모도로",
+  "short_name": "포모도로",
+  "description": "집중 시간을 지켜주는 깔끔한 타이머",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#fb7185",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3232/3232711.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
