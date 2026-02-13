@@ -202,6 +202,28 @@ h1 {
     text-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
+.end-time-display {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-dim);
+    margin-bottom: 2.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    display: inline-block;
+    padding: 0.3rem 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    transition: all 0.5s ease;
+}
+
+body.theme-10 .end-time-display,
+body.theme-15 .end-time-display,
+body.theme-25 .end-time-display,
+body.theme-5 .end-time-display {
+    background: rgba(0, 0, 0, 0.05);
+    color: #475569;
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
 .status-badge {
     display: inline-block;
     padding: 0.5rem 1.25rem;

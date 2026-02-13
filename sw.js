@@ -1,10 +1,11 @@
-const CACHE_NAME = 'pomodoro-v14';
+const CACHE_NAME = 'pomodoro-v4';
 const ASSETS = [
     './',
     './index.html',
-    './style.css?v=14',
-    './script.js?v=14',
-    './manifest.json?v=14'
+    './style.css?v=4',
+    './script.js?v=4',
+    './manifest.json?v=4',
+    './timer-worker.js'
 ];
 
 // 설치 시 리소스 캐싱

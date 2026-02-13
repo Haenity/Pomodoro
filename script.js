@@ -5,6 +5,8 @@ let currentTotalTime = 25 * 60;
 let expectedEndTime = null;
 let wakeLock = null;
 let alarmInterval = null;
+let timerWorker = null;
+let silentAudioInterval = null;
 
 const timerDisplay = document.getElementById('timer');
 const startBtn = document.getElementById('startBtn');
@@ -12,6 +14,7 @@ const resetBtn = document.getElementById('resetBtn');
 const statusText = document.getElementById('status');
 const progressBar = document.getElementById('progress');
 const focusCountDisplay = document.getElementById('focusCount');
+const endTimeDisplay = document.getElementById('endTimeDisplay');
 
 // 알람 끄기 버튼 생성 및 추가
 const stopAlarmBtn = document.createElement('button');
@@ -77,9 +80,44 @@ if ('Notification' in window) {
 
 // 오디오 컨텍스트 및 Wake Lock 설정
 let audioCtx = null;
+let silentOscillator = null;
+
 function initAudio() {
     if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+}
+
+// 배경화면 차단 방지를 위한 무음 오디오 하트비트
+function startSilentAudio() {
+    initAudio();
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+
+    // 이미 작동 중이면 무시
+    if (silentAudioInterval) return;
+
+    const playSilence = () => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        gain.gain.value = 0.001; // 거의 들리지 않는 소리
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.1);
+    };
+
+    // 10초마다 무음 재생 (미디어 프로세스 활성 유지)
+    playSilence();
+    silentAudioInterval = setInterval(playSilence, 10000);
+    console.log('안그비 실장: 무음 하트비트 시작 (백그라운드 유지용)');
+}
+
+function stopSilentAudio() {
+    if (silentAudioInterval) {
+        clearInterval(silentAudioInterval);
+        silentAudioInterval = null;
     }
 }
 
@@ -144,6 +182,22 @@ function updateDisplay() {
 
     const progress = ((currentTotalTime - timeLeft) / currentTotalTime) * 100;
     progressBar.style.width = `${Math.min(100, progress)}%`;
+
+    updateEndTimeDisplay();
+}
+
+function updateEndTimeDisplay() {
+    if (!isRunning || !expectedEndTime) {
+        endTimeDisplay.textContent = '종료 예정: --:--';
+        return;
+    }
+    const end = new Date(expectedEndTime);
+    const hours = end.getHours();
+    const minutes = end.getMinutes();
+    const ampm = hours >= 12 ? '오후' : '오전';
+    const displayHours = hours % 12 || 12;
+    const displayMinutes = minutes.toString().padStart(2, '0');
+    endTimeDisplay.textContent = `종료 예정: ${ampm} ${displayHours}:${displayMinutes}`;
 }
 
 function setPreset(minutes, isBreak = false) {
@@ -204,27 +258,43 @@ function startTimer() {
         expectedEndTime = Date.now() + (timeLeft * 1000);
         saveTimerState();
 
-        timerId = setInterval(() => {
-            timeLeft = Math.round((expectedEndTime - Date.now()) / 1000);
+        // Web Worker로 타이머 전환 (백그라운드 성능 향상)
+        if (!timerWorker) {
+            timerWorker = new Worker('timer-worker.js');
+            timerWorker.onmessage = (e) => {
+                if (e.data.type === 'tick') {
+                    handleTick();
+                }
+            };
+        }
+        timerWorker.postMessage({ action: 'start' });
+        startSilentAudio(); // 무음 하트비트 시작
+    }
+}
 
-            if (timeLeft <= 0) {
-                finishTimer();
-            } else {
-                updateDisplay();
-                // 5초마다 자동 백업 (지플립 전환 대비)
-                if (timeLeft % 5 === 0) saveTimerState();
-            }
-        }, 1000);
+function handleTick() {
+    timeLeft = Math.round((expectedEndTime - Date.now()) / 1000);
+
+    if (timeLeft <= 0) {
+        finishTimer();
+    } else {
+        updateDisplay();
+        // 5초마다 자동 백업 (지플립 전환 대비)
+        if (timeLeft % 5 === 0) saveTimerState();
     }
 }
 
 function finishTimer() {
     timeLeft = 0;
     updateDisplay();
+    if (timerWorker) {
+        timerWorker.postMessage({ action: 'stop' });
+    }
     clearInterval(timerId);
     expectedEndTime = null;
     isRunning = false;
     releaseWakeLock();
+    stopSilentAudio(); // 무음 하트비트 중지
     clearTimerState();
 
     // 소리 대신 강력한 진동 시작
@@ -252,11 +322,15 @@ function finishTimer() {
 }
 
 function resetTimer() {
+    if (timerWorker) {
+        timerWorker.postMessage({ action: 'stop' });
+    }
     clearInterval(timerId);
     stopAlarm();
     timeLeft = currentTotalTime;
     isRunning = false;
     expectedEndTime = null;
+    stopSilentAudio(); // 무음 하트비트 중지
     startBtn.textContent = '시작하기';
     startBtn.style.background = '#fb7185';
     startBtn.style.display = 'block';
@@ -341,5 +415,5 @@ if (document.readyState === 'complete') recoverState();
 // 하단에 버전 정보 표시 (디버깅용)
 const versionInfo = document.createElement('div');
 versionInfo.style.cssText = 'font-size: 10px; color: rgba(0,0,0,0.2); margin-top: 20px; text-align: center;';
-versionInfo.textContent = 'v14';
+versionInfo.textContent = 'v4';
 document.querySelector('.container').appendChild(versionInfo);

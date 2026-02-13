@@ -10,8 +10,8 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://haenity.github.io/Pomodoro/">
 
-    <link rel="stylesheet" href="style.css?v=9">
-    <link rel="manifest" href="manifest.json?v=9">
+    <link rel="stylesheet" href="style.css?v=4">
+    <link rel="manifest" href="manifest.json?v=4">
     <meta name="theme-color" content="#fb7185">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3232/3232711.png">
 </head>
@@ -29,6 +29,7 @@
         </div>
 
         <div id="timer" class="timer-display">25:00</div>
+        <div id="endTimeDisplay" class="end-time-display">종료 예정: --:--</div>
 
         <div class="controls">
             <button id="startBtn" class="btn-start">시작하기</button>
@@ -44,13 +45,13 @@
         </div>
     </div>
 
-    <script src="script.js?v=14"></script>
+    <script src="script.js?v=4"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=14')
+                navigator.serviceWorker.register('./sw.js?v=4')
                     .then(reg => {
-                        console.log('안그비 실장: v14 보안 요원 배치 완료!');
+                        console.log('안그비 실장: v4 보안 요원 배치 완료!');
 
                         // 업데이트 확인 로직 강화
                         reg.onupdatefound = () => {
@@ -59,7 +60,7 @@
                                 if (installingWorker.state === 'installed') {
                                     if (navigator.serviceWorker.controller) {
                                         // 새로운 버전이 감지되면 즉시 반영을 위해 강제 재로드
-                                        console.log('안그비 실장: 새 버전(v14)을 찾았습니다. 갱신합니다.');
+                                        console.log('안그비 실장: 새 버전(v4)을 찾았습니다. 갱신합니다.');
                                         window.location.reload();
                                     }
                                 }
